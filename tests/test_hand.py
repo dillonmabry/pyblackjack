@@ -8,8 +8,8 @@ class TestHand(TestCase):
     """
 
     def test_hand_init(self):
-        player_hand = Hand(is_dealer=False)
-        dealer_hand = Hand(is_dealer=True)
+        player_hand = Hand()
+        dealer_hand = Hand()
         self.assertEquals(player_hand.value, 0)
         self.assertEquals(player_hand.cards, [])
         self.assertEquals(dealer_hand.value, 0)
@@ -18,8 +18,8 @@ class TestHand(TestCase):
     def test_hand_add_cards(self):
         """Test adding cards
         """
-        player_hand = Hand(is_dealer=False)
-        dealer_hand = Hand(is_dealer=True)
+        player_hand = Hand()
+        dealer_hand = Hand()
         player_hand.add_card(Card("Spades", "2"))
         dealer_hand.add_card(Card("Clubs", "A"))
         self.assertEquals(len(player_hand.cards), 1)
@@ -30,8 +30,8 @@ class TestHand(TestCase):
     def test_hand_ace_case(self):
         """Test ace bust case
         """
-        player_hand = Hand(is_dealer=False)
-        dealer_hand = Hand(is_dealer=True)
+        player_hand = Hand()
+        dealer_hand = Hand()
         player_hand.add_card(Card("Spades", "2"))
         dealer_hand.add_card(Card("Clubs", "A"))
         player_hand.add_card(Card("Hearts", "2"))

@@ -23,6 +23,14 @@ class TestDeck(TestCase):
         self.deck.shuffle()
         self.assertNotEquals(str(self.deck.cards[0]), "A of Spades")
 
+    def test_deck_cut(self):
+        """Test cut deck at random point
+        """
+        d = Deck(1)
+        l = len(d.cards)
+        d.cut()
+        self.assertGreater(l, len(d.cards))
+
     def test_deck_deal(self):
         """Test deck deal card
         """

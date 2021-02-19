@@ -1,7 +1,7 @@
 
 class SimpleStrategy():
     """Simplest strategy possible
-    Hit 17 or less, stand over 17
+    Stand 12 or over
     Args:
         deck: deck of cards to deal from
     """
@@ -16,8 +16,8 @@ class SimpleStrategy():
             hand: hand to use with strategy
             dealer_card: shown dealer card to use with strategy
         """
-        while hand.get_value() < 18:
-            if hand.get_value() == 17:
+        while hand.get_value() < 13:
+            if hand.get_value() == 12:
                 break
 
             hand.add_card(self.deck.deal())
@@ -52,6 +52,11 @@ class BasicStrategy():
             hand: hand to use with strategy
             dealer_card: shown dealer card to use with strategy
         """
+        # Two same cards
+        
+        # Has Ace
+
+        # Normal lookup
 
 
 class DealerStrategy():

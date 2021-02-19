@@ -3,10 +3,10 @@ class Hand():
     """Basic hand of gameplay
     """
 
-    def __init__(self, is_dealer=False):
+    def __init__(self):
         self.cards = []
         self.value = 0
-        self.is_dealer = is_dealer
+        self.bet = 0
 
     def __str__(self):
         return "".join([card.__str__() for card in self.cards])
@@ -35,15 +35,6 @@ class Hand():
 
         if has_ace and self.value > 21:
             self.value -= 10
-
-    def display(self):
-        if self.is_dealer:
-            print("hidden")
-            print(self.cards[1])
-        else:
-            for card in self.cards:
-                print(card)
-            print("Value:", self.get_value())
 
     def get_value(self):
         """Calculate value of hand
