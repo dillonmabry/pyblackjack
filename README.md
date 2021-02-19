@@ -1,0 +1,2 @@
+# pyblackjack
+Python blackjack simulator
