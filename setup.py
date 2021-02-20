@@ -21,7 +21,7 @@ setup(name='pyblackjack',
       },
       include_package_data=True,
       data_files=[('', [
-          'pyblackjack/resources/basic_strategy.json'
+          'pyblackjack/resources/strategy.json'
       ])],
       zip_safe=False
       )

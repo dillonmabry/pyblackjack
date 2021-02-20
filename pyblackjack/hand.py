@@ -6,7 +6,7 @@ class Hand():
     def __init__(self):
         self.cards = []
         self.value = 0
-        self.bet = 0
+        self.bet = 0.0
 
     def __str__(self):
         return "".join([card.__str__() for card in self.cards])
@@ -17,6 +17,13 @@ class Hand():
             card: card to add
         """
         self.cards.append(card)
+
+    def add_bet(self, bet):
+        """Add bet amount to given hand
+        Args:
+            bet: bet to add
+        """
+        self.bet = bet
 
     def calculate_value(self):
         """Calculate value of the hand

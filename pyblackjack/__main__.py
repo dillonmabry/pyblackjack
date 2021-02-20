@@ -2,7 +2,7 @@ import argparse
 import math
 import time
 import multiprocessing
-from .game import Game
+from .game import Game, WIN, TIE, LOSS
 from .deck import Deck
 from .strategy import BasicStrategy, SimpleStrategy
 
@@ -29,15 +29,15 @@ def simulate(queue, batch_size, num_decks, shuffle_perc, strategy):
     deck = new_deck(num_decks)
     tie, win, loss = 0, 0, 0
     for i in range(0, batch_size):
-        game = Game(deck, strategy, 1000)
+        game = Game(deck, strategy)
         if (float(len(game.deck.cards)) / (52 * num_decks)) < shuffle_perc:
             game.deck = new_deck(num_decks)
         result = game.play()
-        if result == 0:
+        if result == TIE:
             tie += 1
-        if result == 1:
+        elif result == WIN:
             win += 1
-        if result == 2:
+        elif result == LOSS:
             loss += 1
     queue.put([win, tie, loss])
 
@@ -56,7 +56,7 @@ def main():
         print("Please enter number of simulations >= 1")
     elif args.num_sims == 1:
         deck = new_deck(args.num_decks)
-        game = Game(deck, SimpleStrategy([]), 1000)
+        game = Game(deck, BasicStrategy([]))
         result = game.play()
         game.display_results(result)
         return

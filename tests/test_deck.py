@@ -13,15 +13,15 @@ class TestDeck(TestCase):
         self.std_deck = Deck(4)
 
     def test_deck_init(self):
-        self.assertEquals(len(self.deck.cards), 52)
-        self.assertEquals(len(self.std_deck.cards), 208)
+        self.assertEqual(len(self.deck.cards), 52)
+        self.assertEqual(len(self.std_deck.cards), 208)
 
     def test_deck_shuffle(self):
         """Test shuffle deck
         """
-        self.assertEquals(str(self.deck.cards[0]), "A of Spades")
+        self.assertEqual(str(self.deck.cards[0]), "A of Spades")
         self.deck.shuffle()
-        self.assertNotEquals(str(self.deck.cards[0]), "A of Spades")
+        self.assertTrue(str(self.deck.cards[0]) != "A of Spades")
 
     def test_deck_cut(self):
         """Test cut deck at random point
@@ -36,4 +36,4 @@ class TestDeck(TestCase):
         """
         d = Deck(1)
         c = d.deal()
-        self.assertEquals(c.value, "A")
+        self.assertEqual(c.value, "A")
