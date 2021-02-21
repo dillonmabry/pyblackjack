@@ -1,6 +1,6 @@
 from .deck import Deck
 from .hand import Hand
-from .strategy import DealerStrategy
+from .strategy import DealerStrategy, BasicStrategy
 
 TIE = 0
 WIN = 1
@@ -20,11 +20,49 @@ class Game():
         self.pool = 1000
         self.default_bet = 5.0
 
+    def calculate_result(self, player_hand, dealer_hand):
+        """Calculate result of game with specific hands
+        """
+        #print("player hand: " + str(player_hand.cards))
+        #print("dealer hand: " + str(dealer_hand.cards))
+
+        # Initialize strategies
+        self.dealer_strategy = DealerStrategy(self.deck)
+        self.player_strategy.deck = self.deck
+
+        player_has_blackjack, dealer_has_blackjack = Game.check_inital_blackjack(
+            player_hand, dealer_hand)
+
+        if player_has_blackjack or dealer_has_blackjack:
+            if player_has_blackjack and dealer_has_blackjack:
+                return TIE
+            elif player_has_blackjack:
+                return WIN
+            elif dealer_has_blackjack:
+                return LOSS
+        self.player_strategy.play(player_hand, dealer_hand)
+        # print(self.player_strategy.split_hands)
+        # if len(self.player_strategy.split_hands) > 0:
+        #     for s_hand in self.player_strategy.split_hands:
+        #         self.calculate_result(s_hand, dealer_hand)
+        if Game.check_bust(player_hand):
+            return LOSS
+
+        self.dealer_strategy.play(dealer_hand)
+        if Game.check_bust(dealer_hand):
+            return WIN
+
+        if player_hand.get_value() == dealer_hand.get_value():
+            return TIE
+        elif player_hand.get_value() > dealer_hand.get_value():
+            return WIN
+        else:
+            return LOSS
+
     def play(self):
         """Play a single game
         Returns outcome of game for player, 0, 1, 2 (DRAW, WIN, LOSS)
         """
-
         # Initialize hands
         self.player_hand = Hand()
         self.dealer_hand = Hand()
@@ -37,38 +75,8 @@ class Game():
         # Intialize default bets
         self.player_hand.add_bet(self.default_bet)
 
-        print("player hand: " + str(self.player_hand.cards))
-        print("dealer hand: " + str(self.dealer_hand.cards))
-
-        # Initialize strategies
-        self.dealer_strategy = DealerStrategy(self.deck)
-        self.player_strategy.deck = self.deck
-
-        player_has_blackjack, dealer_has_blackjack = self.check_inital_blackjack(
-            self.player_hand, self.dealer_hand)
-
-        if player_has_blackjack or dealer_has_blackjack:
-            if player_has_blackjack and dealer_has_blackjack:
-                return TIE
-            elif player_has_blackjack:
-                return WIN
-            elif dealer_has_blackjack:
-                return LOSS
-
-        self.player_strategy.play(self.player_hand, self.dealer_hand)
-        if Game.check_bust(self.player_hand):
-            return LOSS
-
-        self.dealer_strategy.play(self.dealer_hand)
-        if Game.check_bust(self.dealer_hand):
-            return WIN
-
-        if self.player_hand.get_value() == self.dealer_hand.get_value():
-            return TIE
-        elif self.player_hand.get_value() > self.dealer_hand.get_value():
-            return WIN
-        else:
-            return LOSS
+        result = self.calculate_result(self.player_hand, self.dealer_hand)
+        return result
 
     @staticmethod
     def check_blackjack(hand):
@@ -81,7 +89,8 @@ class Game():
         else:
             return False
 
-    def check_inital_blackjack(self, player_hand, dealer_hand):
+    @staticmethod
+    def check_inital_blackjack(player_hand, dealer_hand):
         """Check if player or dealer has blackjack
         Args:
             player_hand: hand of player

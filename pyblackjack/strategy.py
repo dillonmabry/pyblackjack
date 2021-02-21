@@ -2,6 +2,12 @@ import json
 import pkg_resources
 from .hand import Hand
 
+STAND = "St"
+SPLIT = "Sp"
+HIT = "H"
+DOUBLE = "D"
+
+
 class SimpleStrategy():
     """Simplest strategy possible
     Stand 12 or over
@@ -34,6 +40,7 @@ class BasicStrategy():
 
     def __init__(self, deck):
         self.deck = deck
+        self.split_hands = []
         try:
             with open(pkg_resources.resource_filename('pyblackjack', 'resources/strategy.json'), 'r') as f:
                 self.lookup_table = json.load(f)
@@ -61,30 +68,32 @@ class BasicStrategy():
             dealer_hand: dealer hand to utilize
         Returns is_playing to continue
         """
-        if strat == "St":  # Stand
+        if strat == STAND:  # Stand
             return False
-        elif strat == "H":  # Hit
+        elif strat == HIT:  # Hit
             hand.add_card(self.deck.deal())
             return True
-        elif strat == "Sp":  # Split (if cards are identical)
-            # is_playing = True
-            # if hand.cards[0].value == "A" and hand.cards[1].value == "A":
-            #     is_playing = False
+        elif strat == SPLIT:  # Split (if cards are identical)
+            is_playing = True
+            if hand.cards[0].value == "A" and hand.cards[1].value == "A":
+                is_playing = False
 
-            # h1 = Hand()
-            # h2 = Hand()
-            # h1.add_card(hand.cards[0])
-            # h2.add_card(hand.cards[1])
+            h1 = Hand()
+            h2 = Hand()
+            h1.add_card(hand.cards[0])
+            h2.add_card(hand.cards[1])
 
-            # h1.add_card(self.deck.deal())
-            # h2.add_card(self.deck.deal())
+            h1.add_card(self.deck.deal())
+            h2.add_card(self.deck.deal())
 
-            # h1.bet = hand.bet
-            # h2.bet = hand.bet
+            h1.bet = hand.bet
+            h2.bet = hand.bet
 
-            # return is_playing
-            return False
-        elif strat == "D":  # Double Down (if first hand)
+            self.split_hands.append(h1)
+            self.split_hands.append(h2)
+
+            return is_playing
+        elif strat == DOUBLE:  # Double Down (if first hand)
             if len(hand.cards) == 2:
                 if hand.bet:
                     hand.bet = hand.bet * 2
@@ -106,7 +115,8 @@ class BasicStrategy():
             # Two same cards
             if len(hand.cards) == 2 and hand.cards[0].value == hand.cards[1].value:
                 tbl = self.lookup_table['BasicStrategy']['Pairs']
-                strat = self.lookup(tbl[str(hand.cards[0].get_value())], dealer_hand.cards[1])
+                strat = self.lookup(
+                    tbl[str(hand.cards[0].get_value())], dealer_hand.cards[1])
                 is_playing = self.play_hand(strat, hand, dealer_hand)
             # Has Ace
             elif len(hand.cards) == 2 and (hand.cards[0].value == "A" or hand.cards[1].value == "A"):
@@ -114,7 +124,8 @@ class BasicStrategy():
                 non_ace = hand.cards[0]
                 if hand.cards[0].value == "A":
                     non_ace = hand.cards[1]
-                strat = self.lookup(tbl[str(non_ace.get_value())], dealer_hand.cards[1])
+                strat = self.lookup(
+                    tbl[str(non_ace.get_value())], dealer_hand.cards[1])
                 is_playing = self.play_hand(strat, hand, dealer_hand)
             # Normal lookup
             else:
@@ -144,7 +155,7 @@ class DealerStrategy():
         Args:
             hand: hand to use with strategy
         """
-        while hand.get_value() < 18  and hand.get_value() <= 21:
+        while hand.get_value() < 18 and hand.get_value() <= 21:
             if hand.get_value() == 17:  # Ace handling strategy already implemented in hand method
                 break
 
