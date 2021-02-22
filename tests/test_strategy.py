@@ -2,7 +2,7 @@ from unittest import TestCase
 from pyblackjack.hand import Hand
 from pyblackjack.card import Card
 from pyblackjack.deck import Deck
-from pyblackjack.strategy import DealerStrategy, BasicStrategy, SimpleStrategy
+from pyblackjack.strategy import DealerStrategy, BasicStrategy, SimpleStrategy, SPLIT
 
 
 class TestDealerStrategy(TestCase):
@@ -119,19 +119,38 @@ class TestBasicStrategy(TestCase):
         self.strategy.play(player_hand, dealer_hand)
         self.assertEqual(len(player_hand.cards), 2)
 
-    # def test_basic_strat_split(self):
-    #     """Test split
-    #     """
-    #     player_hand = Hand()
-    #     player_hand.add_card(Card("Spades", "A"))
-    #     player_hand.add_card(Card("Clubs", "A"))
+    def test_basic_strat_split(self):
+        """Test split
+        """
+        strategy = BasicStrategy(self.deck)
+        player_hand = Hand()
+        player_hand.add_card(Card("Spades", "A"))
+        player_hand.add_card(Card("Clubs", "A"))
 
-    #     dealer_hand = Hand()
-    #     dealer_hand.add_card(Card("Spades", "2"))
-    #     dealer_hand.add_card(Card("Clubs", "9"))
+        dealer_hand = Hand()
+        dealer_hand.add_card(Card("Spades", "2"))
+        dealer_hand.add_card(Card("Clubs", "9"))
 
-    #     self.strategy.play(player_hand, dealer_hand)
-    #     self.assertEqual(len(player_hand.cards), 4)
+        cont_playing = strategy.play_hand(SPLIT, player_hand, dealer_hand)
+        self.assertEqual(len(strategy.split_hands), 2)
+        self.assertEqual(cont_playing, True)
+        self.assertEqual(strategy.cont_split, False)
+
+    def test_basic_strat_split_nonace(self):
+        """Test split non-ace
+        """
+        strategy = BasicStrategy(self.deck)
+        player_hand = Hand()
+        player_hand.add_card(Card("Spades", "3"))
+        player_hand.add_card(Card("Clubs", "3"))
+
+        dealer_hand = Hand()
+        dealer_hand.add_card(Card("Spades", "2"))
+        dealer_hand.add_card(Card("Clubs", "3"))
+
+        is_playing = strategy.play_hand(SPLIT, player_hand, dealer_hand)
+        self.assertEqual(len(strategy.split_hands), 2)
+        self.assertEqual(is_playing, True)
 
     def test_basic_strat_double_1(self):
         """Test double down 1

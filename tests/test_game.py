@@ -71,7 +71,7 @@ class TestGame(TestCase):
         dealer_hand.add_card(Card("Spades", "10"))
         dealer_hand.add_card(Card("Hearts", "5"))
 
-        strategy = BasicStrategy([])
+        strategy = BasicStrategy(d)
 
         game = Game(d, strategy)
         game.calculate_results(player_hand, dealer_hand)
@@ -92,7 +92,7 @@ class TestGame(TestCase):
         dealer_hand.add_card(Card("Spades", "10"))
         dealer_hand.add_card(Card("Hearts", "7"))
 
-        strategy = BasicStrategy([])
+        strategy = BasicStrategy(d)
 
         game = Game(d, strategy)
         game.calculate_results(player_hand, dealer_hand)
@@ -114,7 +114,7 @@ class TestGame(TestCase):
         dealer_hand.add_card(Card("Spades", "10"))
         dealer_hand.add_card(Card("Hearts", "3"))
 
-        strategy = BasicStrategy([])
+        strategy = BasicStrategy(d)
 
         game = Game(d, strategy)
         game.calculate_results(player_hand, dealer_hand)
@@ -136,7 +136,7 @@ class TestGame(TestCase):
         dealer_hand.add_card(Card("Spades", "10"))
         dealer_hand.add_card(Card("Hearts", "3"))
 
-        strategy = BasicStrategy([])
+        strategy = BasicStrategy(d)
 
         game = Game(d, strategy)
         game.calculate_results(player_hand, dealer_hand)
@@ -160,10 +160,10 @@ class TestGame(TestCase):
         dealer_hand.add_card(Card("Spades", "10"))
         dealer_hand.add_card(Card("Hearts", "3"))
 
-        strategy = BasicStrategy([])
+        strategy = BasicStrategy(d)
 
         game = Game(d, strategy)
         game.calculate_results(player_hand, dealer_hand)
         game.display_results()
         self.assertGreaterEqual(len(strategy.split_hands), 2)
-        self.assertEqual(game.losses + game.wins + game.ties, 2)
+        self.assertEqual(game.game_info["losses"] + game.game_info["wins"] + game.game_info["ties"], 2)

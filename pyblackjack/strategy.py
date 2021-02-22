@@ -39,12 +39,15 @@ class BasicStrategy():
         deck: deck of cards to deal from
     """
 
-    def __init__(self, deck):
+    def __init__(self, deck, *args, **kwargs):
         self.deck = deck
         self.split_hands = []
         self.cont_split = True
+        strat_file = kwargs.get('strat_file', None)
+        strategy_path = 'resources/strategies/{0}.json'.format(
+            strat_file) if strat_file is not None else 'resources/strategies/basic_strategy.json'
         try:
-            with open(pkg_resources.resource_filename('pyblackjack', 'resources/strategy.json'), 'r') as f:
+            with open(pkg_resources.resource_filename('pyblackjack', strategy_path), 'r') as f:
                 self.lookup_table = json.load(f)
         except Exception:
             raise
