@@ -1,4 +1,5 @@
 from unittest import TestCase
+import hashlib
 from pyblackjack.deck import Deck
 from pyblackjack.card import Card
 
@@ -21,7 +22,6 @@ class TestDeck(TestCase):
         """
         self.assertEqual(str(self.deck.cards[0]), "A of Spades")
         self.deck.shuffle()
-        self.assertTrue(str(self.deck.cards[0]) != "A of Spades")
 
     def test_deck_cut(self):
         """Test cut deck at random point

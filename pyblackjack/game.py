@@ -2,11 +2,6 @@ from .deck import Deck
 from .hand import Hand
 from .strategy import DealerStrategy, BasicStrategy
 
-TIE = 0
-WIN = 1
-LOSS = 2
-
-
 class Game():
     """Blackjack game
     Args:
@@ -17,14 +12,21 @@ class Game():
     def __init__(self, deck, player_strategy):
         self.deck = deck
         self.player_strategy = player_strategy
-        self.pool = 1000
+        self.earnings = 0.0
         self.default_bet = 5.0
+        self.ties = 0
+        self.wins = 0
+        self.losses = 0
+        self.game_info = {"wins": 0, "ties": 0, "losses": 0, "earnings": 0}
+        self.has_split = False
 
-    def calculate_result(self, player_hand, dealer_hand):
+    def calculate_results(self, player_hand, dealer_hand):
         """Calculate result of game with specific hands
+        Args:
+            player_hand: initial player hand
+            dealer_hand: dealer_hand (visible)
+        Play game and calculate results
         """
-        #print("player hand: " + str(player_hand.cards))
-        #print("dealer hand: " + str(dealer_hand.cards))
 
         # Initialize strategies
         self.dealer_strategy = DealerStrategy(self.deck)
@@ -35,33 +37,54 @@ class Game():
 
         if player_has_blackjack or dealer_has_blackjack:
             if player_has_blackjack and dealer_has_blackjack:
-                return TIE
+                self.ties += 1
+                return
             elif player_has_blackjack:
-                return WIN
+                self.wins += 1
+                self.earnings += player_hand.bet
+                return
             elif dealer_has_blackjack:
-                return LOSS
+                self.losses += 1
+                self.earnings -= player_hand.bet
+                return
         self.player_strategy.play(player_hand, dealer_hand)
-        # print(self.player_strategy.split_hands)
-        # if len(self.player_strategy.split_hands) > 0:
-        #     for s_hand in self.player_strategy.split_hands:
-        #         self.calculate_result(s_hand, dealer_hand)
+
+        # Allow split once, cannot split after first split house rules
+        if len(self.player_strategy.split_hands) > 0 and not self.has_split:
+            self.has_split = True
+            for s_hand in self.player_strategy.split_hands:
+                # Reset game info and continue splitting
+                self.ties = 0
+                self.wins = 0
+                self.losses = 0
+                self.earnings = 0
+                self.calculate_results(s_hand, dealer_hand)
         if Game.check_bust(player_hand):
-            return LOSS
+            self.losses += 1
+            self.earnings -= player_hand.bet
+            return
 
         self.dealer_strategy.play(dealer_hand)
         if Game.check_bust(dealer_hand):
-            return WIN
+            self.wins += 1
+            self.earnings += player_hand.bet
+            return
 
         if player_hand.get_value() == dealer_hand.get_value():
-            return TIE
+            self.ties += 1
+            return
         elif player_hand.get_value() > dealer_hand.get_value():
-            return WIN
+            self.wins += 1
+            self.earnings += player_hand.bet
+            return
         else:
-            return LOSS
+            self.losses += 1
+            self.earnings -= player_hand.bet
+            return
 
     def play(self):
-        """Play a single game
-        Returns outcome of game for player, 0, 1, 2 (DRAW, WIN, LOSS)
+        """Play a game
+        Returns game obj with stats
         """
         # Initialize hands
         self.player_hand = Hand()
@@ -75,8 +98,7 @@ class Game():
         # Intialize default bets
         self.player_hand.add_bet(self.default_bet)
 
-        result = self.calculate_result(self.player_hand, self.dealer_hand)
-        return result
+        self.calculate_results(self.player_hand, self.dealer_hand)
 
     @staticmethod
     def check_blackjack(hand):
@@ -115,21 +137,10 @@ class Game():
         else:
             return False
 
-    def display_results(self, result):
+    def display_results(self):
         """Print results of game
-        Args:
-            result: result value to display
         """
-        if result == TIE:
-            print("Tie!")
-        elif result == WIN:
-            print("Player wins!")
-        elif result == LOSS:
-            print("Dealer wins!")
-
-        print("Final Results")
-        print("Player's hand:", self.player_hand.get_value())
-        print("Player's cards: ", str(self.player_hand.cards))
-        print("Player's bet: ", str(self.player_hand.bet))
-        print("Dealer's hand:", self.dealer_hand.get_value())
-        print("Dealer's cards: ", str(self.dealer_hand.cards))
+        print("Total wins: {0}".format(str(self.wins)))
+        print("Total ties: {0}".format(str(self.ties)))
+        print("Total losses: {0}".format(str(self.losses)))
+        print("Total earnings: {0}".format(str(self.earnings)))

@@ -17,6 +17,7 @@ class SimpleStrategy():
 
     def __init__(self, deck):
         self.deck = deck
+        self.split_hands = []
 
     def play(self, hand, dealer_hand):
         """Play strategy
@@ -41,6 +42,7 @@ class BasicStrategy():
     def __init__(self, deck):
         self.deck = deck
         self.split_hands = []
+        self.cont_split = True
         try:
             with open(pkg_resources.resource_filename('pyblackjack', 'resources/strategy.json'), 'r') as f:
                 self.lookup_table = json.load(f)
@@ -73,11 +75,11 @@ class BasicStrategy():
         elif strat == HIT:  # Hit
             hand.add_card(self.deck.deal())
             return True
-        elif strat == SPLIT:  # Split (if cards are identical)
-            is_playing = True
+        elif strat == SPLIT:  # Split
+            if len(self.split_hands) > 0:  # Cannot split further after single split
+                return False
             if hand.cards[0].value == "A" and hand.cards[1].value == "A":
-                is_playing = False
-
+                self.cont_split = False
             h1 = Hand()
             h2 = Hand()
             h1.add_card(hand.cards[0])
@@ -92,7 +94,7 @@ class BasicStrategy():
             self.split_hands.append(h1)
             self.split_hands.append(h2)
 
-            return is_playing
+            return True
         elif strat == DOUBLE:  # Double Down (if first hand)
             if len(hand.cards) == 2:
                 if hand.bet:
@@ -111,7 +113,7 @@ class BasicStrategy():
             dealer_hand: shown dealer card to use with strategy
         """
         is_playing = True
-        while is_playing and hand.get_value() <= 21:
+        while is_playing and hand.get_value() <= 21 and self.cont_split:
             # Two same cards
             if len(hand.cards) == 2 and hand.cards[0].value == hand.cards[1].value:
                 tbl = self.lookup_table['BasicStrategy']['Pairs']

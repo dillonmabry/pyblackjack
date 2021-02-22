@@ -2,19 +2,13 @@ from unittest import TestCase
 from pyblackjack.hand import Hand
 from pyblackjack.card import Card
 from pyblackjack.deck import Deck
-from pyblackjack.game import Game, WIN, LOSS, TIE
+from pyblackjack.game import Game
 from pyblackjack.strategy import BasicStrategy
 
 
 class TestGame(TestCase):
     """Test game
     """
-
-    @classmethod
-    def setUpClass(self):
-        self.deck = Deck(1)
-        self.deck.shuffle()
-        self.deck.cut()
 
     def test_check_blackjack(self):
         """Test blackjack
@@ -58,7 +52,6 @@ class TestGame(TestCase):
         h2.add_card(Card("Spades", "11"))
         h2.add_card(Card("Clubs", "8"))
 
-
         h1_blackjack, h2_blackjack = Game.check_inital_blackjack(h1, h2)
         self.assertTrue(h1_blackjack)
         self.assertFalse(h2_blackjack)
@@ -66,6 +59,10 @@ class TestGame(TestCase):
     def test_calculate_result_stand(self):
         """Test result for normal stand
         """
+        d = Deck(4)
+        d.shuffle()
+        d.cut()
+
         player_hand = Hand()
         player_hand.add_card(Card("Spades", "Q"))
         player_hand.add_card(Card("Clubs", "2"))
@@ -76,13 +73,17 @@ class TestGame(TestCase):
 
         strategy = BasicStrategy([])
 
-        game = Game(self.deck, strategy)
-        game.calculate_result(player_hand, dealer_hand)
+        game = Game(d, strategy)
+        game.calculate_results(player_hand, dealer_hand)
         self.assertEqual(len(player_hand.cards), 2)
 
     def test_calculate_result_hit(self):
         """Test result for normal stand
         """
+        d = Deck(4)
+        d.shuffle()
+        d.cut()
+
         player_hand = Hand()
         player_hand.add_card(Card("Spades", "Q"))
         player_hand.add_card(Card("Clubs", "2"))
@@ -93,13 +94,17 @@ class TestGame(TestCase):
 
         strategy = BasicStrategy([])
 
-        game = Game(self.deck, strategy)
-        game.calculate_result(player_hand, dealer_hand)
+        game = Game(d, strategy)
+        game.calculate_results(player_hand, dealer_hand)
         self.assertGreater(len(player_hand.cards), 2)
 
     def test_calculate_result_double(self):
         """Test result for normal stand
         """
+        d = Deck(4)
+        d.shuffle()
+        d.cut()
+
         player_hand = Hand()
         player_hand.add_card(Card("Spades", "Q"))
         player_hand.add_card(Card("Clubs", "1"))
@@ -111,24 +116,54 @@ class TestGame(TestCase):
 
         strategy = BasicStrategy([])
 
-        game = Game(self.deck, strategy)
-        game.calculate_result(player_hand, dealer_hand)
+        game = Game(d, strategy)
+        game.calculate_results(player_hand, dealer_hand)
         self.assertGreater(len(player_hand.cards), 2)
         self.assertEqual(player_hand.bet, 10.0)
 
-    # def test_calculate_result_split(self):
-    #     """Test result for split
-    #     """
-    #     player_hand = Hand()
-    #     player_hand.add_card(Card("Spades", "A"))
-    #     player_hand.add_card(Card("Clubs", "A"))
+    def test_calculate_result_split_ace(self):
+        """Test result for split
+        """
+        d = Deck(4)
+        d.shuffle()
+        d.cut()
 
-    #     dealer_hand = Hand()
-    #     dealer_hand.add_card(Card("Spades", "10"))
-    #     dealer_hand.add_card(Card("Hearts", "3"))
+        player_hand = Hand()
+        player_hand.add_card(Card("Spades", "A"))
+        player_hand.add_card(Card("Clubs", "A"))
 
-    #     strategy = BasicStrategy([])
+        dealer_hand = Hand()
+        dealer_hand.add_card(Card("Spades", "10"))
+        dealer_hand.add_card(Card("Hearts", "3"))
 
-    #     game = Game(self.deck, strategy)
-    #     result = game.calculate_result(player_hand, dealer_hand)
-    #     self.assertGreaterEqual(len(strategy.split_hands), 2)
+        strategy = BasicStrategy([])
+
+        game = Game(d, strategy)
+        game.calculate_results(player_hand, dealer_hand)
+        game.display_results()
+        self.assertGreaterEqual(len(strategy.split_hands), 2)
+        self.assertEqual(len(strategy.split_hands[0].cards), 2)
+        self.assertEqual(len(strategy.split_hands[1].cards), 2)
+
+    def test_calculate_result_split_noneace(self):
+        """Test result for split without aces
+        """
+        d = Deck(4)
+        d.shuffle()
+        d.cut()
+
+        player_hand = Hand()
+        player_hand.add_card(Card("Spades", "2"))
+        player_hand.add_card(Card("Clubs", "2"))
+
+        dealer_hand = Hand()
+        dealer_hand.add_card(Card("Spades", "10"))
+        dealer_hand.add_card(Card("Hearts", "3"))
+
+        strategy = BasicStrategy([])
+
+        game = Game(d, strategy)
+        game.calculate_results(player_hand, dealer_hand)
+        game.display_results()
+        self.assertGreaterEqual(len(strategy.split_hands), 2)
+        self.assertEqual(game.losses + game.wins + game.ties, 2)
