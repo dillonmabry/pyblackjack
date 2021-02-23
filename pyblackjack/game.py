@@ -2,6 +2,7 @@ from .deck import Deck
 from .hand import Hand
 from .strategy import DealerStrategy, BasicStrategy, SimpleStrategy
 
+
 class Game():
     """Blackjack game
     Args:
@@ -14,8 +15,24 @@ class Game():
         self.player_strategy = player_strategy
         self.dealer_strategy = DealerStrategy(self.deck)
         self.default_bet = 5.0
-        self.game_info = {"wins": 0, "ties": 0, "losses": 0, "earnings": 0}
+        self.game_info = {"wins": 0, "ties": 0, "losses": 0, "earnings": 0.0}
         self.has_split = False
+
+    def calculate_earnings(self, player_hand):
+        """Return earnings
+        Payouts are 3-2 for standard casino rules if player has an "overall" win
+        Args:
+            player_hand: player hand
+        Returns earnings payout
+        """
+        if (self.game_info["wins"] == 2 and
+            self.game_info["losses"] == 0 and
+            self.game_info["ties"] == 0) or \
+            (self.game_info["wins"] == 1 and
+             self.game_info["losses"] == 0 and
+             self.game_info["ties"] == 0):
+            return player_hand.bet * 1.5
+        return player_hand.bet
 
     def calculate_results(self, player_hand, dealer_hand):
         """Calculate result of game with specific hands
@@ -40,11 +57,13 @@ class Game():
                 return
             elif player_has_blackjack:
                 self.game_info["wins"] += 1
-                self.game_info["earnings"] += player_hand.bet
+                self.game_info["earnings"] += self.calculate_earnings(
+                    player_hand)
                 return
             elif dealer_has_blackjack:
                 self.game_info["losses"] += 1
-                self.game_info["earnings"] -= player_hand.bet
+                self.game_info["earnings"] -= self.calculate_earnings(
+                    player_hand)
                 return
         self.player_strategy.play(player_hand, dealer_hand)
         # print("player post-strat hand: " + str(player_hand.cards))
@@ -61,14 +80,14 @@ class Game():
                 self.calculate_results(s_hand, dealer_hand)
         if Game.check_bust(player_hand):
             self.game_info["losses"] += 1
-            self.game_info["earnings"] -= player_hand.bet
+            self.game_info["earnings"] -= self.calculate_earnings(player_hand)
             return
 
         self.dealer_strategy.play(dealer_hand)
         # print("dealer post-strat hand: " + str(dealer_hand.cards))
         if Game.check_bust(dealer_hand):
             self.game_info["wins"] += 1
-            self.game_info["earnings"] += player_hand.bet
+            self.game_info["earnings"] += self.calculate_earnings(player_hand)
             return
 
         if player_hand.get_value() == dealer_hand.get_value():
@@ -76,11 +95,11 @@ class Game():
             return
         elif player_hand.get_value() > dealer_hand.get_value():
             self.game_info["wins"] += 1
-            self.game_info["earnings"] += player_hand.bet
+            self.game_info["earnings"] += self.calculate_earnings(player_hand)
             return
         else:
             self.game_info["losses"] += 1
-            self.game_info["earnings"] -= player_hand.bet
+            self.game_info["earnings"] -= self.calculate_earnings(player_hand)
             return
 
     def play(self):
