@@ -1,0 +1,55 @@
+
+Total simulations: 1000000
+Simulations/s: 43423
+Execution time: 23.03s
+Hand win percentage: 43.59%
+Hand draw percentage: 8.39%
+Hand lose percentage: 48.02%
+Total Earnings: 868405.00
+Expected Earnings per game: 0.87
+Expected Earnings per hand: 0.87
+
+
+Total simulations: 1000000
+Simulations/s: 45394
+Execution time: 22.03s
+Hand win percentage: 43.54%
+Hand draw percentage: 8.37%
+Hand lose percentage: 48.09%
+Total Earnings: 861327.50
+Expected Earnings per game: 0.86
+Expected Earnings per hand: 0.86
+
+
+Total simulations: 1000000
+Simulations/s: 46203
+Execution time: 21.64s
+Hand win percentage: 43.54%
+Hand draw percentage: 8.31%
+Hand lose percentage: 48.15%
+Total Earnings: 858240.00
+Expected Earnings per game: 0.86
+Expected Earnings per hand: 0.86
+
+
+Total simulations: 1000000
+Simulations/s: 45712
+Execution time: 21.88s
+Hand win percentage: 43.56%
+Hand draw percentage: 8.37%
+Hand lose percentage: 48.07%
+Total Earnings: 863852.50
+Expected Earnings per game: 0.86
+Expected Earnings per hand: 0.86
+
+
+Total simulations: 1000000
+Simulations/s: 44832
+Execution time: 22.31s
+Hand win percentage: 43.46%
+Hand draw percentage: 8.40%
+Hand lose percentage: 48.14%
+Total Earnings: 853020.00
+Expected Earnings per game: 0.85
+Expected Earnings per hand: 0.85
+
