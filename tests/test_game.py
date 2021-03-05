@@ -2,7 +2,7 @@ from unittest import TestCase
 from pyblackjack.hand import Hand
 from pyblackjack.card import Card
 from pyblackjack.deck import Deck
-from pyblackjack.game import Game
+from pyblackjack.game import Game, WIN, LOSS
 from pyblackjack.strategy import BasicStrategy
 
 
@@ -166,58 +166,65 @@ class TestGame(TestCase):
         game.calculate_results(player_hand, dealer_hand)
         game.display_results()
         self.assertGreaterEqual(len(strategy.split_hands), 2)
-        self.assertEqual(game.game_info["losses"] + game.game_info["wins"] + game.game_info["ties"], 2)
+        self.assertEqual(
+            game.game_info["losses"] + game.game_info["wins"] + game.game_info["ties"], 2)
 
     def test_calculate_earnings(self):
         d = Deck(4)
         d.shuffle()
         d.cut()
 
-        player_hand = Hand()
-        player_hand.add_card(Card("Spades", "2"))
-        player_hand.add_card(Card("Clubs", "2"))
-        player_hand.add_bet(5.0)
+        h1 = Hand()
+        h1.add_card(Card("Spades", "2"))
+        h1.add_card(Card("Clubs", "2"))
+        h1.add_bet(5.0)
+
+        h2 = Hand()
+        h2.add_card(Card("Spades", "2"))
+        h2.add_card(Card("Clubs", "A"))
+        h2.add_bet(5.0)
+
+        h3 = Hand()
+        h3.add_card(Card("Spades", "2"))
+        h3.add_card(Card("Clubs", "J"))
+        h3.add_bet(5.0)
+
+        h4 = Hand()
+        h4.add_card(Card("Spades", "2"))
+        h4.add_card(Card("Clubs", "Q"))
+        h4.add_bet(5.0)
+
+        h5 = Hand()
+        h5.add_card(Card("Spades", "2"))
+        h5.add_card(Card("Clubs", "K"))
+        h5.add_bet(5.0)
 
         strategy = BasicStrategy(d)
 
         game = Game(d, strategy)
-        game.game_info["wins"] += 1
-        game.game_info["losses"] += 0
-        game.game_info["ties"] += 0
-        earnings = game.calculate_earnings(player_hand)
+        earnings = game.calculate_earnings(h1, WIN, False)
+        self.assertEqual(earnings, 5.0)
+
+        game = Game(d, strategy)
+        earnings = game.calculate_earnings(h1, LOSS, False)
+        self.assertEqual(earnings, 5.0)
+
+        game = Game(d, strategy)
+        earnings = game.calculate_earnings(h1, WIN, True)
+        self.assertEqual(earnings, 5.0)
+
+        game = Game(d, strategy)
+        earnings = game.calculate_earnings(h2, WIN, False)
         self.assertEqual(earnings, 7.5)
 
         game = Game(d, strategy)
-        game.game_info["wins"] += 2
-        game.game_info["losses"] += 0
-        game.game_info["ties"] += 0
-        earnings = game.calculate_earnings(player_hand)
+        earnings = game.calculate_earnings(h3, WIN, False)
         self.assertEqual(earnings, 7.5)
 
         game = Game(d, strategy)
-        game.game_info["wins"] += 2
-        game.game_info["losses"] += 1
-        game.game_info["ties"] += 0
-        earnings = game.calculate_earnings(player_hand)
-        self.assertEqual(earnings, 5.0)
+        earnings = game.calculate_earnings(h4, WIN, False)
+        self.assertEqual(earnings, 7.5)
 
         game = Game(d, strategy)
-        game.game_info["wins"] += 1
-        game.game_info["losses"] += 1
-        game.game_info["ties"] += 0
-        earnings = game.calculate_earnings(player_hand)
-        self.assertEqual(earnings, 5.0)
-
-        game = Game(d, strategy)
-        game.game_info["wins"] += 1
-        game.game_info["losses"] += 0
-        game.game_info["ties"] += 1
-        earnings = game.calculate_earnings(player_hand)
-        self.assertEqual(earnings, 5.0)
-
-        game = Game(d, strategy)
-        game.game_info["wins"] += 0
-        game.game_info["losses"] += 0
-        game.game_info["ties"] += 2
-        earnings = game.calculate_earnings(player_hand)
-        self.assertEqual(earnings, 5.0)
+        earnings = game.calculate_earnings(h5, WIN, False)
+        self.assertEqual(earnings, 7.5)

@@ -2,6 +2,8 @@ import argparse
 import math
 import time
 import multiprocessing
+import logging
+import sys
 from .game import Game
 from .deck import Deck
 from .strategy import BasicStrategy, SimpleStrategy
@@ -69,10 +71,16 @@ def main():
                         help="Shuffle percentage of when deck limit is reached, standard is 75%", choices=[0.50, 0.75])
     parser.add_argument("strategy", type=str, help="Player strategy to use, basic, basic_alt, simple", choices=[
                         "basic_strategy", "basic_strategy_alt", "simple"])
+    parser.add_argument('-d', action='store_true')
     args = parser.parse_args()
 
+    if args.d:
+        logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    else:
+        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
     if args.num_sims < 1:
-        print("Please enter number of simulations >= 1")
+        logging.warn("Please enter number of simulations >= 1")
     elif args.num_sims == 1:
         deck = new_deck(args.num_decks)
         game = Game(deck, get_strategy(args.strategy))
@@ -105,20 +113,21 @@ def main():
             num_hands += results["num_hands"]
             earnings += results["earnings"]
 
-        print()
-        print('Total simulations: %d' % args.num_sims)
-        print('Simulations/s: %d' % (float(args.num_sims) / finish_time))
-        print('Execution time: %.2fs' % finish_time)
-        print('Hand win percentage: %.2f%%' %
-              ((wins / float(num_hands)) * 100))
-        print('Hand draw percentage: %.2f%%' %
-              ((ties / float(num_hands)) * 100))
-        print('Hand lose percentage: %.2f%%' %
-              ((losses / float(num_hands)) * 100))
-        print('Total Earnings: %.2f' % earnings)
-        print('Expected Earnings per game: %.2f' % (earnings / args.num_sims))
-        print('Expected Earnings per hand: %.2f' % (earnings / num_hands))
-        print()
+        logging.info('Total simulations: %d' % args.num_sims)
+        logging.info('Simulations/s: %d' %
+                     (float(args.num_sims) / finish_time))
+        logging.info('Execution time: %.2fs' % finish_time)
+        logging.info('Hand win percentage: %.2f%%' %
+                     ((wins / float(num_hands)) * 100))
+        logging.info('Hand draw percentage: %.2f%%' %
+                     ((ties / float(num_hands)) * 100))
+        logging.info('Hand lose percentage: %.2f%%' %
+                     ((losses / float(num_hands)) * 100))
+        logging.info('Total Earnings: %.2f' % earnings)
+        logging.info('Expected Earnings per game: %.2f' %
+                     (earnings / args.num_sims))
+        logging.info('Expected Earnings per hand: %.2f\n' %
+                     (earnings / num_hands))
 
 
 if __name__ == '__main__':
