@@ -1,5 +1,7 @@
+"""Module for strategies"""
+
 import json
-import pkg_resources
+import pkg_resources as pkg
 from .hand import Hand
 
 STAND = "St"
@@ -39,7 +41,7 @@ class BasicStrategy():
         deck: deck of cards to deal from
     """
 
-    def __init__(self, deck, *args, **kwargs):
+    def __init__(self, deck, **kwargs):
         self.deck = deck
         self.split_hands = []
         self.cont_split = True
@@ -47,23 +49,24 @@ class BasicStrategy():
         strategy_path = 'resources/strategies/{0}.json'.format(
             strat_file) if strat_file is not None else 'resources/strategies/basic_strategy.json'
         try:
-            with open(pkg_resources.resource_filename('pyblackjack', strategy_path), 'r') as f:
-                self.lookup_table = json.load(f)
-        except Exception:
-            raise
+            with open(pkg.resource_filename('pyblackjack', strategy_path), 'r') as resource:
+                self.lookup_table = json.load(resource)
+        except Exception as ex:
+            raise ex
 
-    def lookup(self, d, dealer_card):
+    @classmethod
+    def lookup(cls, dict_lookup, dealer_card):
         """Lookup strat based on scenario
         Args:
-            d: original key lookup
+            dict_lookup: original dict lookup
             dealer_card: known card of dealer to compare
         Returns strat to use (Hit, Stand, Split, Double-Down)
         """
-        if type(d) == str:
-            return d
-        for i in d.keys():
+        if isinstance(dict_lookup, str):
+            return dict_lookup
+        for i in dict_lookup.keys():
             if dealer_card.get_value() == int(i):
-                return d[i]
+                return dict_lookup[i]
 
     def play_hand(self, strat, hand, dealer_hand):
         """Play hand based on strat input
@@ -75,38 +78,38 @@ class BasicStrategy():
         """
         if strat == STAND:  # Stand
             return False
-        elif strat == HIT:  # Hit
+        if strat == HIT:  # Hit
             hand.add_card(self.deck.deal())
             return True
-        elif strat == SPLIT:  # Split
+        if strat == SPLIT:  # Split
             if len(self.split_hands) > 0:  # Cannot split further after single split
                 return False
             if hand.cards[0].value == "A" and hand.cards[1].value == "A":
                 self.cont_split = False
-            h1 = Hand()
-            h2 = Hand()
-            h1.add_card(hand.cards[0])
-            h2.add_card(hand.cards[1])
+            hand_1 = Hand()
+            hand_2 = Hand()
+            hand_1.add_card(hand.cards[0])
+            hand_2.add_card(hand.cards[1])
 
-            h1.add_card(self.deck.deal())
-            h2.add_card(self.deck.deal())
+            hand_1.add_card(self.deck.deal())
+            hand_2.add_card(self.deck.deal())
 
-            h1.bet = hand.bet
-            h2.bet = hand.bet
+            hand_1.bet = hand.bet
+            hand_2.bet = hand.bet
 
-            self.split_hands.append(h1)
-            self.split_hands.append(h2)
+            self.split_hands.append(hand_1)
+            self.split_hands.append(hand_2)
 
             return True
-        elif strat == DOUBLE:  # Double Down (if first hand)
+        if strat == DOUBLE:  # Double Down (if first hand)
             if len(hand.cards) == 2:
                 if hand.bet:
                     hand.bet = hand.bet * 2
                 hand.add_card(self.deck.deal())
                 return False
-            else:
-                hand.add_card(self.deck.deal())
-                return True
+
+            hand.add_card(self.deck.deal())
+            return True
 
     def play(self, hand, dealer_hand):
         """Play strategy
@@ -120,23 +123,25 @@ class BasicStrategy():
             # Two same cards
             if len(hand.cards) == 2 and hand.cards[0].value == hand.cards[1].value:
                 tbl = self.lookup_table['BasicStrategy']['Pairs']
-                strat = self.lookup(
+                strat = BasicStrategy.lookup(
                     tbl[str(hand.cards[0].get_value())], dealer_hand.cards[1])
                 is_playing = self.play_hand(strat, hand, dealer_hand)
             # Has Ace
-            elif len(hand.cards) == 2 and (hand.cards[0].value == "A" or hand.cards[1].value == "A"):
+            elif len(hand.cards) == 2 \
+                and (hand.cards[0].value == "A"
+                     or hand.cards[1].value == "A"):
                 tbl = self.lookup_table['BasicStrategy']['Ace']
                 non_ace = hand.cards[0]
                 if hand.cards[0].value == "A":
                     non_ace = hand.cards[1]
-                strat = self.lookup(
+                strat = BasicStrategy.lookup(
                     tbl[str(non_ace.get_value())], dealer_hand.cards[1])
                 is_playing = self.play_hand(strat, hand, dealer_hand)
             # Normal lookup
             else:
                 tbl = self.lookup_table['BasicStrategy']['Other']
                 hand_value = str(hand.get_value())
-                strat = self.lookup(tbl[hand_value], dealer_hand.cards[1])
+                strat = BasicStrategy.lookup(tbl[hand_value], dealer_hand.cards[1])
                 is_playing = self.play_hand(strat, hand, dealer_hand)
 
 

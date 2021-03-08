@@ -1,3 +1,5 @@
+"""Module for hands"""
+
 
 class Hand():
     """Basic hand of gameplay

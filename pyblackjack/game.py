@@ -1,7 +1,7 @@
+"""Module for games"""
 import logging
-from .deck import Deck
 from .hand import Hand
-from .strategy import DealerStrategy, BasicStrategy, SimpleStrategy
+from .strategy import DealerStrategy
 
 WIN = 1
 LOSS = 0
@@ -31,9 +31,9 @@ class Game():
             dealer_bust: did dealer bust
         Returns earnings payout
         """
-        if any([c.value in ['A', 'J', 'Q', 'K'] for c in player_hand.cards]) \
+        if any(c.value in ['A', 'J', 'Q', 'K'] for c in player_hand.cards) \
                 and result == WIN \
-                and dealer_bust == False:
+                and dealer_bust is False:
             return player_hand.bet * 1.5
         return player_hand.bet
 
@@ -48,8 +48,8 @@ class Game():
         # Re-calculate decks to ensure latest
         self.dealer_strategy.deck = self.deck
         self.player_strategy.deck = self.deck
-        logging.debug("Player initial hand: " + str(player_hand.cards))
-        logging.debug("Dealer initial hand: " + str(dealer_hand.cards))
+        logging.debug("Player initial hand: %s", str(player_hand.cards))
+        logging.debug("Dealer initial hand: %s", str(dealer_hand.cards))
 
         player_has_blackjack, dealer_has_blackjack = Game.check_inital_blackjack(
             player_hand, dealer_hand)
@@ -58,24 +58,24 @@ class Game():
             if player_has_blackjack and dealer_has_blackjack:
                 self.game_info["ties"] += 1
                 return
-            elif player_has_blackjack:
+            if player_has_blackjack:
                 self.game_info["wins"] += 1
                 self.game_info["earnings"] += self.calculate_earnings(
                     player_hand, WIN, False)
                 return
-            elif dealer_has_blackjack:
+            if dealer_has_blackjack:
                 self.game_info["losses"] += 1
                 self.game_info["earnings"] -= self.calculate_earnings(
                     player_hand, LOSS, False)
                 return
         self.player_strategy.play(player_hand, dealer_hand)
-        logging.debug("Player post-strat hand: " + str(player_hand.cards))
+        logging.debug("Player post-strat hand: %s", str(player_hand.cards))
         # Allow split once, cannot split after first split house rules
         if len(self.player_strategy.split_hands) > 0 and not self.has_split:
             self.has_split = True
             for s_hand in self.player_strategy.split_hands:
-                logging.debug("Player post-strat split hand: " +
-                             str(s_hand.cards))
+                logging.debug("Player post-strat split hand: %s",
+                              str(s_hand.cards))
                 # Reset game info and continue splitting
                 self.game_info["ties"] = 0
                 self.game_info["wins"] = 0
@@ -89,7 +89,7 @@ class Game():
             return
 
         self.dealer_strategy.play(dealer_hand)
-        logging.debug("Dealer post-strat hand: " + str(dealer_hand.cards))
+        logging.debug("Dealer post-strat hand: %s", str(dealer_hand.cards))
         if Game.check_bust(dealer_hand):
             self.game_info["wins"] += 1
             self.game_info["earnings"] += self.calculate_earnings(
@@ -99,16 +99,16 @@ class Game():
         if player_hand.get_value() == dealer_hand.get_value():
             self.game_info["ties"] += 1
             return
-        elif player_hand.get_value() > dealer_hand.get_value():
+        if player_hand.get_value() > dealer_hand.get_value():
             self.game_info["wins"] += 1
             self.game_info["earnings"] += self.calculate_earnings(
                 player_hand, WIN, False)
             return
-        else:
-            self.game_info["losses"] += 1
-            self.game_info["earnings"] -= self.calculate_earnings(
-                player_hand, LOSS, False)
-            return
+
+        self.game_info["losses"] += 1
+        self.game_info["earnings"] -= self.calculate_earnings(
+            player_hand, LOSS, False)
+        return
 
     def play(self):
         """Play a game
@@ -119,7 +119,7 @@ class Game():
         self.dealer_hand = Hand()
 
         # Deal initial cards
-        for i in range(2):
+        for _ in range(2):
             self.player_hand.add_card(self.deck.deal())
             self.dealer_hand.add_card(self.deck.deal())
 
@@ -134,10 +134,7 @@ class Game():
         Args:
             hand: hand to check
         """
-        if hand.get_value() == 21:
-            return True
-        else:
-            return False
+        return bool(hand.get_value() == 21)
 
     @staticmethod
     def check_inital_blackjack(player_hand, dealer_hand):
@@ -160,16 +157,12 @@ class Game():
         Args:
             hand: hand to check
         """
-        if hand.get_value() > 21:
-            return True
-        else:
-            return False
+        return bool(hand.get_value() > 21)
 
     def display_results(self):
         """Print results of game
         """
-        logging.debug("Total wins: {0}".format(str(self.game_info["wins"])))
-        logging.debug("Total ties: {0}".format(str(self.game_info["ties"])))
-        logging.debug("Total losses: {0}".format(str(self.game_info["losses"])))
-        logging.debug("Total earnings: {0}".format(
-            str(self.game_info["earnings"])))
+        logging.debug("Total wins: %s", str(self.game_info["wins"]))
+        logging.debug("Total ties: %s", str(self.game_info["ties"]))
+        logging.debug("Total losses: %s", str(self.game_info["losses"]))
+        logging.debug("Total earnings: %s", str(self.game_info["earnings"]))
