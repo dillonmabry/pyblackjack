@@ -1,3 +1,5 @@
+"""Module for cards"""
+
 
 class Card():
     """Basic unit of card
@@ -11,12 +13,15 @@ class Card():
         self.value = value
 
     def get_value(self):
+        """Gets numeric value of card
+        Returns card value
+        """
         if self.value == "A":
             return 11
-        elif self.value == "J" or self.value == "Q" or self.value == "K":
+        if self.value == "J" or self.value == "Q" or self.value == "K":
             return 10
-        else:
-            return int(self.value)
+        return int(self.value)
 
     def __repr__(self):
+        """Repr of card"""
         return " of ".join((self.value, self.suit))

@@ -1,3 +1,4 @@
+"""Module for decks"""
 import random
 from .card import Card
 
@@ -28,8 +29,8 @@ class Deck():
         Cuts deck at uniform random dist around first 15 cards or so
         """
         if len(self.cards) > 1:
-            n = len(self.cards)
-            cut_point = random.randint(round(n*0.7), round(n*0.9))
+            n_cards = len(self.cards)
+            cut_point = random.randint(round(n_cards*0.7), round(n_cards*0.9))
             self.cards = self.cards[:cut_point]
 
     def deal(self):

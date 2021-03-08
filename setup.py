@@ -7,7 +7,7 @@ def readme():
 
 
 setup(name='pyblackjack',
-      version='0.0.1',
+      version='0.1.0',
       description='Blackjack Simulator in Python',
       long_description=readme(),
       long_description_content_type='text/markdown',
